@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Spin & Smile</title>
+<link rel="icon" type="image/png" href="spin.png">
+<style>
+:root{--bg:#0b1020;--panel:#151d32;--panel2:#1d2943;--text:#f7f8ff;--muted:#aab4ce;--accent:#a78bfa;--accent2:#fb7185;--line:#303b58;--good:#86efac;--gold:#f59e0b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#202a50 0,#0b1020 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:12px 15px;font-weight:750;transition:transform .12s,filter .12s}button:active{transform:scale(.98)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+.app{max-width:1100px;margin:auto;padding:20px 16px 38px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.brand{display:flex;gap:11px;align-items:center}.logo{width:46px;height:46px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:25px;box-shadow:0 8px 25px #a78bfa35}.brand h1{font-size:1.25rem;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:.83rem}.pill{background:#26324e;color:#d9dfff;padding:8px 11px;border-radius:99px;font-size:.8rem;font-weight:700}
+.hero{text-align:center;margin:10px 0 22px}.hero h2{font-size:clamp(1.7rem,5vw,2.65rem);margin:0 0 7px;letter-spacing:-.04em}.hero p{color:var(--muted);margin:0 auto;max-width:520px;line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr);gap:17px;align-items:start}.card{background:linear-gradient(160deg,#19233b,#121a2d);border:1px solid var(--line);border-radius:23px;padding:18px;box-shadow:0 18px 45px #0002}.card h3{margin:0;font-size:1.08rem}.sub{color:var(--muted);font-size:.88rem;line-height:1.45;margin:5px 0 14px}
+.wheel-area{display:flex;justify-content:center;position:relative;padding:14px 0 4px}.pointer{position:absolute;z-index:3;top:3px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-top:30px solid #fff;filter:drop-shadow(0 3px 3px #0008)}
+#wheel{width:min(100%,410px);height:auto;aspect-ratio:1;filter:drop-shadow(0 12px 20px #0005)}
+.spin-row{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap}.primary{background:linear-gradient(120deg,#a78bfa,#f472b6);color:#17132a;flex:1.2;box-shadow:0 7px 18px #a78bfa2b;min-width:140px}.secondary{background:#2a3653;color:var(--text)}.team-btn{background:linear-gradient(120deg,#38bdf8,#818cf8);color:#0f172a}.wide{width:100%}
+.modes-bar{display:flex;gap:12px;flex-wrap:wrap;background:#141c30;border:1px solid #2d3856;padding:11px 13px;border-radius:15px;margin-top:13px}
+.toggle{display:inline-flex;align-items:center;gap:8px;color:#dfe4f6;font-size:.86rem;cursor:pointer;user-select:none}.toggle input{width:18px;height:18px;accent-color:#a78bfa;cursor:pointer}
+.result{margin-top:15px;padding:16px;border:1px solid #544879;background:#211d3d;border-radius:17px;display:none}.result.show{display:block;animation:pop .25s ease}.result-top{font-size:.78rem;color:#d4c8ff;text-transform:uppercase;letter-spacing:.12em;font-weight:850;display:flex;justify-content:space-between;align-items:center}.result-name{font-size:1.55rem;font-weight:900;margin:6px 0 8px;overflow-wrap:anywhere;color:#fff}.challenge{line-height:1.5;margin:0 0 14px;color:#e2e8f0}.result-actions{display:flex;gap:8px;flex-wrap:wrap}.result-actions button{font-size:.88rem;padding:10px 12px}.snap-btn{background:linear-gradient(120deg,#f59e0b,#ec4899);color:#1e1022;font-weight:800}.tiny{color:var(--muted);font-size:.77rem;margin-top:12px;line-height:1.45}
+.record-box{margin-top:14px;padding:13px;border:1px solid #3d4968;background:#141b30;border-radius:15px}
+.record-title{font-weight:850;font-size:.94rem}.record-help{color:var(--muted);font-size:.78rem;line-height:1.45;margin:5px 0 11px}
+.sound-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:11px}.sound-label{font-size:.8rem;color:#d4dbef;font-weight:750}.sound-btn{font-size:.8rem;padding:9px 10px;flex:1;min-width:70px}.record-status{font-size:.78rem;color:var(--good);margin-top:9px;overflow-wrap:anywhere}
+input,textarea{width:100%;background:#0e1527;border:1px solid #394562;color:var(--text);border-radius:12px;padding:12px;outline:none}input::placeholder,textarea::placeholder{color:#75819e}textarea{min-height:100px;resize:vertical}
+.input-row{display:flex;gap:8px;margin-bottom:10px}.input-row input{min-width:0}.add{background:#c4b5fd;color:#17132a;white-space:nowrap}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:13px 0 9px}.count{font-size:.8rem;color:var(--muted)}.names{display:flex;flex-direction:column;gap:7px;max-height:245px;overflow:auto;padding-right:2px}.name-item{display:flex;align-items:center;gap:8px;background:#202b44;border:1px solid #303c59;border-radius:12px;padding:8px 9px}.name-text{min-width:0;flex:1;overflow-wrap:anywhere}.name-number{color:#8996b5;font-size:.78rem;width:22px}.icon-btn{background:transparent;color:#c6cde0;padding:6px 8px;font-size:1rem}.icon-btn:hover{background:#34415f}.empty{padding:20px 12px;text-align:center;color:var(--muted);border:1px dashed #3b4663;border-radius:14px;font-size:.9rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tools button{font-size:.82rem;padding:10px 11px}
+.challenge-card{margin-top:17px}.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.challenge-chip{background:#202b44;border:1px solid #35415e;border-radius:12px;padding:10px;font-size:.84rem;line-height:1.4;color:#e5e9fa}
+.footer{text-align:center;color:#7f8baa;font-size:.78rem;margin-top:18px;line-height:1.5}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#f7f8ff;color:#12182a;border-radius:12px;padding:11px 16px;font-weight:750;box-shadow:0 8px 30px #0005;transition:.2s;z-index:99;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Photo Frame Overlay Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(7,10,20,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.modal-backdrop.active{opacity:1;pointer-events:auto}
+.modal-card{background:linear-gradient(155deg,#1c2640,#131a2c);border:1px solid #475569;border-radius:24px;max-width:480px;width:100%;padding:22px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);transform:scale(.95);transition:transform .2s ease;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;align-items:center}
+.modal-backdrop.active .modal-card{transform:scale(1)}
+.modal-head{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-size:1.15rem;font-weight:800;margin:0}
+.close-btn{background:#2d3a58;color:#a5b4fc;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;padding:0;font-size:1.1rem}
+#badgeCanvas{width:100%;max-width:380px;height:auto;border-radius:16px;box-shadow:0 10px 30px #0006;margin-bottom:16px;border:1px solid #334155}
+.modal-actions{display:flex;gap:10px;width:100%}
+.modal-actions button{flex:1;font-size:.9rem}
+
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:760px){.app{padding:14px 12px 28px}.layout{grid-template-columns:1fr}.card{padding:15px}.hero{margin:7px 0 18px}.wheel-card{order:0}.names-card{order:1}.wheel-area{padding-top:17px}#wheel{width:min(88vw,390px)}.names{max-height:230px}.challenge-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">🎡</div><div><h1>Spin & Smile</h1><p>Pick a name. Start a friendly moment.</p></div></div>
+    <div class="pill">✨ Good vibes only</div>
+  </header>
+  <section class="hero"><h2>Who's up next?</h2><p>Add your names, spin the wheel, and get a silly icebreaker. Keep it kind, keep it optional, and have fun!</p></section>
+  <main class="layout">
+    <section class="card wheel-card">
+      <h3>🎯 The lucky wheel</h3><p class="sub">Every name gets a slice. Switch modes or toggle Mystery Mode below!</p>
+      <div class="wheel-area"><div class="pointer" aria-hidden="true"></div><canvas id="wheel" width="800" height="800" role="img" aria-label="Spinning wheel of names"></canvas></div>
+      
+      <div class="spin-row">
+        <button class="primary" id="spinBtn">🎡 Spin Single</button>
+        <button class="team-btn" id="teamSpinBtn">👥 Spin Pairs</button>
+        <button class="secondary" id="randomBtn" title="Choose a random name">🎲 Quick Pick</button>
+      </div>
+
+      <div class="modes-bar">
+        <label class="toggle"><input id="mysteryMode" type="checkbox"> 🎭 Mystery Wheel Mode</label>
+        <label class="toggle"><input id="noRepeat" type="checkbox"> 🔄 No-repeat mode</label>
+      </div>
+
+      <div class="result" id="result" aria-live="polite">
+        <div class="result-top"><span id="resultTag">🎉 The wheel chose</span><span id="winnerBadgeTag" style="font-size:1rem;">🌟</span></div>
+        <div class="result-name" id="winner"></div>
+        <p class="challenge" id="challenge"></p>
+        <div class="result-actions">
+          <button class="snap-btn" id="snapBtn">📸 Snap Moment / Badge</button>
+          <button class="secondary" id="anotherBtn">🔁 New challenge</button>
+          <button class="secondary" id="skipBtn">⏭ Skip</button>
+          <button class="secondary" id="copyBtn">📋 Copy result</button>
+        </div>
+        <div class="record-box">
+          <div class="record-title">🔊 Voice & sound effects</div>
+          <p class="record-help">Read the challenge aloud or trigger celebratory sounds. Works without microphone permissions.</p>
+          <div class="result-actions">
+            <button class="primary" id="speakBtn" type="button">🔊 Read aloud</button>
+            <button class="secondary" id="stopSpeakBtn" type="button">⏹ Stop voice</button>
+          </div>
+          <div class="sound-row">
+            <span class="sound-label">🎛️ Audio:</span>
+            <button class="secondary sound-btn" data-sound="applause" type="button">👏 Applause</button>
+            <button class="secondary sound-btn" data-sound="ding" type="button">🔔 Ding!</button>
+            <button class="secondary sound-btn" data-sound="boing" type="button">🪀 Boing</button>
+            <button class="secondary sound-btn" data-sound="fail" type="button">🥁 Fail</button>
+          </div>
+          <div id="recordStatus" class="record-status" aria-live="polite">Ready! Pick voice or sound effects.</div>
+        </div>
+      </div>
+      <p class="tiny">Friendly reminder: ask first, respect a “no,” and never pressure anyone. You can always skip a challenge.</p>
+    </section>
+    <section class="card names-card">
+      <h3>📝 Your name list</h3><p class="sub">Names are saved on this device automatically.</p>
+      <form id="addForm" class="input-row"><input id="nameInput" maxlength="500" placeholder="Type a name and press Add" aria-label="Name to add" autocomplete="off"><button class="add" type="submit">+ Add</button></form>
+      <div class="input-row"><input id="bulkInput" placeholder="Or paste names separated by commas / new lines" aria-label="Paste multiple names"><button class="secondary" id="bulkBtn" type="button">Import</button></div>
+      <div class="list-head"><strong>Saved names</strong><span class="count" id="count">0 names</span></div>
+      <div class="names" id="namesList"></div>
+      <div class="tools"><button class="secondary" id="shuffleBtn">🔀 Shuffle list</button><button class="secondary" id="exportBtn">⬇ Export</button><button class="secondary" id="importFileBtn">⬆ Import file</button><button class="secondary" id="clearBtn">🗑 Clear all</button><input type="file" id="fileInput" accept=".txt,.csv,.json" hidden></div>
+      <p class="tiny">Tip: export a backup if you want to move your names to another device.</p>
+    </section>
+  </main>
+  <section class="card challenge-card"><h3>💡 Challenge examples</h3><p class="sub">Silly questions and goofy mini-prompts designed to get a laugh—always friendly and optional.</p><div class="challenge-grid" id="challengeExamples"></div></section>
+  <div class="footer">Made for friendly fun • Challenges are suggestions, not rules.</div>
+</div>
+
+<!-- Snap Photo Badge Overlay Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 class="modal-title">📸 Moment Badge Captured!</h3>
+      <button class="close-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
+    </div>
+    <canvas id="badgeCanvas" width="600" height="600"></canvas>
+    <div class="modal-actions">
+      <button class="primary" id="downloadBadgeBtn">⬇ Download Image</button>
+      <button class="secondary" id="shareBadgeBtn">📋 Copy Image</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+  const STORAGE_KEY = 'spinSmileNames_v1';
+  const MYSTERY_ICONS = ['❓', '🔮', '🎁', '🎭', '🎪', '✨', '💎', '🔑'];
+  const SOLO_CHALLENGES = [
+    'Invent a brand new high-five technique and give it an impressive name.',
+    'Ask someone nearby what superhero name they would give to a slice of cheese.',
+    'Speak only in dramatic opera singing style for the next 30 seconds.',
+    'Do your best impression of a cat trying to walk across a frozen lake.',
+    'Recite the alphabet backwards as fast as you can while wiggling your toes.',
+    'Give a 15-second passionate acceptance speech for winning "Best Yawner".',
+    'Describe your favorite movie plot using only goofy sound effects.',
+    'Make up a silly 3-second victory dance and perform it right now.',
+    'Deliver a short weather forecast as if a storm of spaghetti is approaching.',
+    'Pretend you are a fancy restaurant waiter offering a gourmet glass of ice water.',
+    'Try to hum a popular song while holding your nose closed.',
+    'Give a polite round of applause to a random harmless object in the room.',
+    'Pronounce your own name backwards with complete confidence.',
+    'Demonstrate how a dramatic movie villain would politely pass the salt.',
+    'Hold a solemn 5-second silence to honor all forgotten leftovers in the fridge.',
+    'Pretend you are a news anchor breaking crucial news about a squirrel taking over a park bench.',
+    'Do your absolute best impression of a car engine starting on a frosty morning.',
+    'Gently present an imaginary golden trophy to the person next to you.',
+    'Do a stealthy secret-agent tiptoe across three steps.',
+    'Smile broadly and give everyone in the room an enthusiastic double thumbs-up!'
+  ];
+
+  const PAIR_CHALLENGES = [
+    'Create a secret handshake together that includes at least 3 distinct moves!',
+    'Invent a funny new two-person victory celebration dance right now.',
+    'Perform a synchronized 5-second slow-motion walk side by side.',
+    'Collaborate to create a 10-second dramatic commercial advertising a plain pencil.',
+    'Have a high-stakes staring contest where you both must hum a tune continuously.',
+    'Strike a heroic superhero duo pose and hold it frozen for 5 full seconds.',
+    'Invent a silly 2-line rhyming slogan for your newly formed dream team.',
+    'Perform a high-five, elbow bump, and foot-tap combo in under 3 seconds.',
+    'Pretend you are two mystery detectives silently examining a tiny invisible clue.',
+    'Take turns making the most convincing animal noises to guess each other\'s animal!'
+  ];
+
+  const COLORS = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb923c','#f87171','#2dd4bf','#818cf8','#e879f9','#93c5fd','#bef264'];
+  const $ = id => document.getElementById(id);
+  let names = loadNames(), rotation = 0, spinning = false, used = new Set();
+  let currentWinner = '', currentChallenge = '', currentMode = 'solo'; // 'solo' or 'team'
+  const canvas = $('wheel'), ctx = canvas.getContext('2d');
+
+  function loadNames(){ try { const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); return Array.isArray(v)?v.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()):[]; } catch { return []; } }
+  function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(names)); } catch { toast('Could not save: storage may be full.'); } }
+  function toast(message){ const t=$('toast'); t.textContent=message; t.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>t.classList.remove('show'),2300); }
+
+  function drawWheel(){
+    const w=canvas.width, h=canvas.height, cx=w/2, cy=h/2, r=w/2-18; ctx.clearRect(0,0,w,h);
+    if(!names.length){
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#283450';ctx.fill();ctx.strokeStyle='#a78bfa';ctx.lineWidth=8;ctx.stroke();
+      ctx.fillStyle='#eef0ff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 36px system-ui';ctx.fillText('ADD NAMES',cx,cy-12);
+      ctx.font='28px system-ui';ctx.fillText('to get started',cx,cy+35);return;
+    }
+    const slice=Math.PI*2/names.length;
+    const isMystery = $('mysteryMode').checked;
+
+    names.forEach((name,i)=>{
+      const start=rotation+i*slice-Math.PI/2, end=start+slice;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+      ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();ctx.strokeStyle='#10172a';ctx.lineWidth=4;ctx.stroke();
+      
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(start+slice/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#15152b';
+      
+      let label = isMystery ? MYSTERY_ICONS[i % MYSTERY_ICONS.length] : name;
+      if (!isMystery) {
+        const maxChars=names.length>28?9:names.length>16?13:18;
+        label = label.length>maxChars?label.slice(0,maxChars-1)+'…':label;
+      }
+      
+      const fontSize = isMystery ? 34 : Math.max(15,Math.min(27,270/names.length+8));
+      ctx.font=`bold ${fontSize}px system-ui`;
+      ctx.fillText(label,r-25,0);ctx.restore();
+    });
+
+    ctx.beginPath();ctx.arc(cx,cy,62,0,Math.PI*2);ctx.fillStyle='#11182c';ctx.fill();ctx.strokeStyle='#f8f5ff';ctx.lineWidth=7;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 30px system-ui';
+    ctx.fillText(isMystery ? '❓' : 'SPIN',cx,cy);
+  }
+
+  function renderNames(){
+    $('count').textContent=`${names.length} ${names.length===1?'name':'names'}`;
+    const list=$('namesList');list.replaceChildren();
+    if(!names.length){const e=document.createElement('div');e.className='empty';e.textContent='Your list is empty. Add a name above to begin!';list.append(e);}
+    names.forEach((name,i)=>{
+      const row=document.createElement('div');row.className='name-item';
+      const n=document.createElement('span');n.className='name-number';n.textContent=String(i+1);
+      const txt=document.createElement('span');txt.className='name-text';txt.textContent=name;
+      const edit=document.createElement('button');edit.className='icon-btn';edit.textContent='✏️';edit.title='Edit '+name;edit.onclick=()=>editName(i);
+      const del=document.createElement('button');del.className='icon-btn';del.textContent='✕';del.title='Remove '+name;del.onclick=()=>removeName(i);
+      row.append(n,txt,edit,del);list.append(row);
+    });
+    drawWheel();
+  }
+
+  function update(){save();renderNames();}
+  function addNames(items){let added=0;items.map(x=>String(x).trim()).filter(Boolean).forEach(name=>{names.push(name);added++;});if(added){update();toast(`Added ${added} ${added===1?'name':'names'}!`);}else toast('Type at least one name first.');}
+  function editName(i){const value=prompt('Edit name:',names[i]);if(value===null)return;if(!value.trim()){toast('Name cannot be empty.');return;}names[i]=value.trim();update();}
+  function removeName(i){const removed=names.splice(i,1)[0];used.delete(removed);update();toast('Removed '+removed);}
+
+  $('addForm').addEventListener('submit',e=>{e.preventDefault();const v=$('nameInput').value.trim();if(v){addNames([v]);$('nameInput').value='';$('nameInput').focus();}});
+  $('bulkBtn').onclick=()=>{const raw=$('bulkInput').value;addNames(raw.split(/[,\\n;]+/));$('bulkInput').value='';};
+
+  function getAvailableNames(){
+    if(!$('noRepeat').checked) return names;
+    if(used.size >= names.length){ used.clear(); toast('Everyone has had a turn! Starting fresh round.'); }
+    return names.filter(n => !used.has(n));
+  }
+
+  function pickWinners(count = 1){
+    const pool = getAvailableNames();
+    if(pool.length < count){
+      if(names.length < count){
+        toast(`Add at least ${count} names for this mode!`);
+        return null;
+      }
+      used.clear();
+      return pickWinners(count);
+    }
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, count);
+    if($('noRepeat').checked) selected.forEach(n => used.add(n));
+    return selected;
+  }
+
+  function showResult(winnerTitle, challenge, isTeam = false){
+    currentWinner = winnerTitle;
+    currentChallenge = challenge;
+    currentMode = isTeam ? 'team' : 'solo';
+    $('resultTag').textContent = isTeam ? '👥 Matchmaker Pair Chosen' : ($('mysteryMode').checked ? '🎭 Secret Mystery Revealed!' : '🎉 The Wheel Chose');
+    $('winnerBadgeTag').textContent = isTeam ? '🤝' : ($('mysteryMode').checked ? '🔮' : '🌟');
+    $('winner').textContent = winnerTitle;
+    $('challenge').textContent = challenge;
+    $('result').classList.add('show');
+    if($('mysteryMode').checked) playEffect('ding');
+  }
+
+  function spinWheel(isTeamMode = false){
+    if(spinning) return;
+    const required = isTeamMode ? 2 : 1;
+    if(names.length < required){
+      toast(`Please add at least ${required} name${required > 1 ? 's' : ''} to spin!`);
+      return;
+    }
+
+    const winners = pickWinners(required);
+    if(!winners) return;
+
+    spinning = true;
+    $('spinBtn').disabled = $('teamSpinBtn').disabled = $('randomBtn').disabled = true;
+
+    // Target the first winner for the visual wheel spin landing
+    const targetIndex = names.indexOf(winners[0]);
+    const slice = Math.PI * 2 / names.length;
+    const current = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const desired = (-(targetIndex + 0.5) * slice) % (Math.PI * 2);
+    let delta = ((desired - current) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    delta += Math.PI * 2 * (5 + Math.floor(Math.random() * 3));
+
+    const start = rotation, end = start + delta, duration = 3600 + Math.random() * 600, begin = performance.now();
+
+    function frame(now){
+      const t = Math.min(1, (now - begin) / duration);
+      const eased = 1 - Math.pow(1 - t, 4);
+      rotation = start + (end - start) * eased;
+      drawWheel();
+      if(t < 1) requestAnimationFrame(frame);
+      else {
+        rotation = desired;
+        drawWheel();
+        spinning = false;
+        $('spinBtn').disabled = $('teamSpinBtn').disabled = $('randomBtn').disabled = false;
+        
+        let displayTitle = winners.join(' & ');
+        let challengeList = isTeamMode ? PAIR_CHALLENGES : SOLO_CHALLENGES;
+        let chosenChallenge = challengeList[Math.floor(Math.random() * challengeList.length)];
+        
+        showResult(displayTitle, chosenChallenge, isTeamMode);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  $('spinBtn').onclick = () => spinWheel(false);
+  $('teamSpinBtn').onclick = () => spinWheel(true);
+  $('randomBtn').onclick = () => {
+    if(spinning) return;
+    const winners = pickWinners(1);
+    if(winners) showResult(winners[0], SOLO_CHALLENGES[Math.floor(Math.random() * SOLO_CHALLENGES.length)], false);
+  };
+
+  $('mysteryMode').onchange = drawWheel;
+  $('anotherBtn').onclick = () => {
+    if(!currentWinner) return;
+    const list = currentMode === 'team' ? PAIR_CHALLENGES : SOLO_CHALLENGES;
+    const next = list.filter(c => c !== currentChallenge);
+    showResult(currentWinner, next[Math.floor(Math.random() * next.length)] || list[0], currentMode === 'team');
+  };
+  $('skipBtn').onclick = () => { $('result').classList.remove('show'); toast('Challenge skipped!'); };
+  $('copyBtn').onclick = async () => {
+    const text = `${currentWinner}: ${currentChallenge}`;
+    try { await navigator.clipboard.writeText(text); toast('Result copied!'); }
+    catch { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Result copied!'); }
+  };
+
+  $('shuffleBtn').onclick = () => { for(let i=names.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[names[i],names[j]]=[names[j],names[i]];} used.clear(); update(); toast('List shuffled!'); };
+  $('exportBtn').onclick = () => { const blob=new Blob([JSON.stringify(names,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='spin-and-smile-names.json'; a.click(); URL.revokeObjectURL(url); toast('Exported!'); };
+  $('importFileBtn').onclick = () => $('fileInput').click();
+  $('fileInput').onchange = async e => {
+    const file = e.target.files[0]; if(!file) return;
+    try { const raw = await file.text(); let items; if(file.name.toLowerCase().endsWith('.json')){ const p=JSON.parse(raw); items=Array.isArray(p)?p:p.names; } else items=raw.split(/[,\\n;]+/); addNames(items); } catch { toast('Invalid file.'); } e.target.value='';
+  };
+  $('clearBtn').onclick = () => { if(names.length && confirm('Clear all names?')){ names=[]; used.clear(); $('result').classList.remove('show'); update(); toast('Names cleared.'); } };
+
+  // Voice Speech
+  const recordStatus = $('recordStatus');
+  $('speakBtn').addEventListener('click', () => {
+    if (!('speechSynthesis' in window)) return toast('Text-to-speech not supported.');
+    if (!currentWinner) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(`${currentWinner}. Your challenge is: ${currentChallenge}`);
+    utterance.rate = 0.95; utterance.pitch = 1.05;
+    utterance.onstart = () => recordStatus.textContent = 'Reading challenge aloud…';
+    utterance.onend = () => recordStatus.textContent = 'Finished reading!';
+    window.speechSynthesis.speak(utterance);
+  });
+  $('stopSpeakBtn').addEventListener('click', () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    recordStatus.textContent = 'Voice stopped.';
+  });
+
+  // Sound Effects
+  function playEffect(kind){
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContextClass) return;
+    const ac = new AudioContextClass();
+    const tone = (freq, start, duration, type='sine', volume=0.12, endFreq=null) => {
+      const osc=ac.createOscillator(), gain=ac.createGain();
+      osc.type=type; osc.frequency.setValueAtTime(freq, ac.currentTime+start);
+      if(endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq), ac.currentTime+start+duration);
+      gain.gain.setValueAtTime(0.0001, ac.currentTime+start);
+      gain.gain.exponentialRampToValueAtTime(volume, ac.currentTime+start+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+start+duration);
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.start(ac.currentTime+start); osc.stop(ac.currentTime+start+duration+0.03);
+    };
+    if(kind==='ding'){ tone(880,0,.28,'sine',.18,1320); tone(1320,.12,.4,'sine',.13,990); }
+    else if(kind==='boing'){ tone(220,0,.55,'triangle',.22,720); tone(140,.05,.45,'sine',.12,310); }
+    else if(kind==='fail'){ tone(440,0,.28,'triangle',.16,330); tone(370,.28,.32,'triangle',.16,277); }
+    else { for(let i=0;i<20;i++) tone(450+Math.random()*1200,i*.05,.045,'square',.03); }
+    setTimeout(()=>ac.close().catch(()=>{}), 1800);
+  }
+  document.querySelectorAll('.sound-btn').forEach(btn => btn.addEventListener('click', () => playEffect(btn.dataset.sound)));
+
+  // "Snap the Moment" Canvas Badge Generator
+  const modalBackdrop = $('modalBackdrop');
+  const badgeCanvas = $('badgeCanvas');
+  const bCtx = badgeCanvas.getContext('2d');
+
+  function generateBadgeCanvas(){
+    const w = badgeCanvas.width, h = badgeCanvas.height;
+    bCtx.clearRect(0,0,w,h);
+
+    // Gradient Background
+    const bgGrad = bCtx.createLinearGradient(0,0,w,h);
+    bgGrad.addColorStop(0, '#1e1b4b');
+    bgGrad.addColorStop(0.5, '#31103f');
+    bgGrad.addColorStop(1, '#0f172a');
+    bCtx.fillStyle = bgGrad;
+    bCtx.fillRect(0,0,w,h);
+
+    // Decorative Outer Border
+    bCtx.strokeStyle = '#a78bfa';
+    bCtx.lineWidth = 12;
+    bCtx.strokeRect(16,16,w-32,h-32);
+
+    bCtx.strokeStyle = '#f472b6';
+    bCtx.lineWidth = 4;
+    bCtx.strokeRect(26,26,w-52,h-52);
+
+    // Header Badge Icon
+    bCtx.font = '70px system-ui';
+    bCtx.textAlign = 'center';
+    bCtx.fillText(currentMode === 'team' ? '👥' : '🌟', w/2, 100);
+
+    // App Header Tag
+    bCtx.fillStyle = '#c4b5fd';
+    bCtx.font = 'bold 22px system-ui';
+    bCtx.fillText('SPIN & SMILE • MOMENT CAPTURED', w/2, 145);
+
+    // Winner Name Box
+    bCtx.fillStyle = '#ffffff';
+    bCtx.font = '900 38px system-ui';
+    
+    // Wrap text for long names or pair names
+    const maxW = w - 80;
+    let nameText = currentWinner.toUpperCase();
+    if (bCtx.measureText(nameText).width > maxW) {
+      bCtx.font = '900 28px system-ui';
+    }
+    bCtx.fillText(nameText, w/2, 210);
+
+    // Divider Line
+    bCtx.strokeStyle = '#f59e0b';
+    bCtx.lineWidth = 3;
+    bCtx.beginPath();
+    bCtx.moveTo(80, 240);
+    bCtx.lineTo(w - 80, 240);
+    bCtx.stroke();
+
+    // Challenge Prompt Box
+    bCtx.fillStyle = '#e2e8f0';
+    bCtx.font = 'italic 24px system-ui';
+    
+    // Word wrapping for challenge
+    const words = currentChallenge.split(' ');
+    let line = '', lines = [], y = 295;
+    for (let n = 0; n < words.length; n++) {
+      let testLine = line + words[n] + ' ';
+      let metrics = bCtx.measureText(testLine);
+      if (metrics.width > maxW && n > 0) {
+        lines.push(line);
+        line = words[n] + ' ';
+      } else {
+        line = testLine;
+      }
+    }
+    lines.push(line);
+
+    lines.forEach(l => {
+      bCtx.fillText('“' + l.trim() + '”', w/2, y);
+      y += 36;
+    });
+
+    // Date Timestamp
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    bCtx.fillStyle = '#a78bfa';
+    bCtx.font = 'bold 20px system-ui';
+    bCtx.fillText(`📅 ${dateStr}`, w/2, h - 65);
+
+    // Footer Tagline
+    bCtx.fillStyle = '#94a3b8';
+    bCtx.font = '16px system-ui';
+    bCtx.fillText('Good vibes & friendly icebreakers', w/2, h - 35);
+  }
+
+  $('snapBtn').onclick = () => {
+    if(!currentWinner) return;
+    generateBadgeCanvas();
+    modalBackdrop.classList.add('active');
+  };
+
+  $('closeModalBtn').onclick = () => modalBackdrop.classList.remove('active');
+  modalBackdrop.onclick = (e) => { if(e.target === modalBackdrop) modalBackdrop.classList.remove('active'); };
+
+  $('downloadBadgeBtn').onclick = () => {
+    const a = document.createElement('a');
+    a.download = `SpinSmile-${currentWinner.replace(/[^a-z0-9]/gi, '_')}.png`;
+    a.href = badgeCanvas.toDataURL('image/png');
+    a.click();
+    toast('Badge image downloaded!');
+  };
+
+  $('shareBadgeBtn').onclick = () => {
+    badgeCanvas.toBlob(async (blob) => {
+      try {
+        if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          toast('Image copied to clipboard!');
+        } else {
+          toast('Clipboard image copy not supported. Use Download!');
+        }
+      } catch {
+        toast('Could not copy image. Use Download!');
+      }
+    });
+  };
+
+  $('challengeExamples').replaceChildren(...SOLO_CHALLENGES.slice(0,8).map(c=>{const d=document.createElement('div');d.className='challenge-chip';d.textContent='💬 '+c;return d;}));
+  renderNames();
+})();
+</script>
+</body>
+</html>
